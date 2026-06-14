@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haori Atelier: Apprentice Challenge</title>
+    <style>
+        :root {
+            --primary: #7e1e2b;        /* Deep Kimono Crimson (Tsubaki) */
+            --primary-dark: #4a1018;   /* Dark Lacquer Red */
+            --accent: #caa43d;         /* Rich Obi Gold (Kin) */
+            --accent-light: #f4ebd0;   /* Soft Golden Silk */
+            --bg: #1c1214;             /* Midnight Charcoal Silk */
+            --card-bg: #fcfaf2;        /* Traditional Washi Paper White */
+            --text: #2b2224;           /* Soft Charcoal Black */
+            --success: #2d6a4f;        /* Deep Matcha Green */
+            --danger: #a63a50;         /* Crimson Error */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', Times, serif; 
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--primary-dark) 0.5px, transparent 0.5px), radial-gradient(var(--primary-dark) 0.5px, var(--bg) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px; 
+            color: var(--text);
+            line-height: 1.7;
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 35px 20px;
+            border-radius: 4px;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            max-width: 1180px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        header h1 {
+            font-size: 2.3rem;
+            letter-spacing: 0;
+            line-height: 1.15;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        header p {
+            color: #e2d4b7;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        /* Tabs Interface */
+        .tabs-container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            background: var(--primary-dark);
+            border: 1px solid rgba(202, 164, 61, 0.3);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #d9c398;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-btn.active,
+        .tab-btn[aria-selected="true"] {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--accent);
+            border-bottom: 4px solid var(--card-bg);
+            margin-bottom: -3px;
+            z-index: 10;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border: 1px solid var(--accent);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            min-height: 450px;
+            display: none;
+        }
+
+        .tab-content[hidden] {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Game Interface Styling */
+        .progress-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .progress-track {
+            height: 8px;
+            background: #eadfbd;
+            border: 1px solid rgba(202, 164, 61, 0.55);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        #progress-fill {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.25s ease;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--accent-light);
+            padding: 15px 25px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            border: 1px solid var(--accent);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-box {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            letter-spacing: 0;
+            flex: 1;
+            min-width: 210px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 14px;
+        }
+
+        .stat-box strong {
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+
+        .game-card {
+            text-align: center;
+        }
+
+        .dialogue-box {
+            background: #fffdf9;
+            border-left: 6px solid var(--primary);
+            border-right: 1px solid #ebdcb9;
+            border-top: 1px solid #ebdcb9;
+            border-bottom: 1px solid #ebdcb9;
+            padding: 25px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            font-size: 1.15rem;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 1px solid #dcd6cd;
+            padding: 18px 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.05rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .option-btn:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .option-btn.correct,
+        .option-btn.correct-answer {
+            border-color: var(--success);
+            background: #eef7f1;
+        }
+
+        .option-btn.wrong {
+            border-color: var(--danger);
+            background: #fbebee;
+        }
+
+        .tab-btn:focus-visible,
+        .option-btn:focus-visible,
+        .next-btn:focus-visible,
+        .secondary-btn:focus-visible {
+            outline: 3px solid rgba(202, 164, 61, 0.8);
+            outline-offset: 3px;
+        }
+
+        /* Feedback Box Styling */
+        .feedback-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 4px;
+            display: none; 
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid transparent;
+            text-align: left;
+            align-items: center; 
+            gap: 20px;
+        }
+
+        .feedback-mark {
+            width: 64px;
+            height: 64px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: 2px solid currentColor;
+            background: white;
+            font-size: 1.6rem;
+            flex: 0 0 auto;
+        }
+
+        .feedback-box .feedback-text {
+            flex: 1; 
+        }
+
+        .feedback-heading {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .next-btn,
+        .secondary-btn {
+            margin-top: 30px;
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--accent);
+            padding: 14px 40px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .next-btn {
+            display: none;
+        }
+
+        .next-btn:hover,
+        .secondary-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .secondary-btn {
+            display: inline-block;
+            margin-top: 0;
+            background: #fffdf9;
+            color: var(--primary);
+        }
+
+        .secondary-btn:hover {
+            color: white;
+        }
+
+        .end-actions {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .end-actions .next-btn {
+            display: inline-block;
+            margin-top: 0;
+        }
+
+        .end-actions[hidden] {
+            display: none;
+        }
+
+        /* Checklist/Manual Styling */
+        .manual-section {
+            margin-bottom: 35px;
+        }
+
+        .manual-section h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            letter-spacing: 0;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0dcd5;
+            display: flex;
+            align-items: flex-start;
+            font-size: 1.05rem;
+        }
+
+        li::before {
+            content: "✦"; 
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Status Tab Profile Card */
+        .profile-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent) 0%, #b08d2b 100%);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 0;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            color: var(--primary-dark);
+        }
+
+        #status-summary {
+            font-size: 1.15rem;
+            color: #4a4244;
+            max-width: 500px;
+            margin: 25px auto 0 auto;
+        }
+
+        .status-details {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 28px auto 0;
+            max-width: 620px;
+        }
+
+        .status-detail {
+            background: #fffdf9;
+            border: 1px solid #ebdcb9;
+            border-left: 4px solid var(--accent);
+            border-radius: 4px;
+            padding: 14px;
+            text-align: left;
+        }
+
+        .status-detail span {
+            display: block;
+            color: #5f5558;
+            font-size: 0.92rem;
+        }
+
+        .status-detail strong {
+            display: block;
+            color: var(--primary-dark);
+            font-size: 1.35rem;
+            margin-top: 4px;
+        }
+
+        .status-actions {
+            margin-top: 24px;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 20px 14px;
+            }
+
+            header {
+                padding: 28px 18px;
+                margin-bottom: 26px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            header p {
+                font-size: 1rem;
+            }
+
+            .tabs {
+                gap: 4px;
+            }
+
+            .tab-btn {
+                font-size: 0.95rem;
+                padding: 13px 8px;
+                min-height: 58px;
+            }
+
+            .tab-content {
+                padding: 26px 18px;
+                min-height: 0;
+            }
+
+            .progress-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .stats-bar {
+                padding: 14px 16px;
+                margin-bottom: 24px;
+            }
+
+            .stat-box {
+                min-width: 100%;
+            }
+
+            .dialogue-box {
+                padding: 20px;
+                font-size: 1.05rem;
+            }
+
+            .option-btn {
+                padding: 16px 18px;
+                font-size: 1rem;
+            }
+
+            .feedback-box {
+                align-items: flex-start;
+            }
+
+            .status-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 430px) {
+            header h1 {
+                font-size: 1.7rem;
+            }
+
+            .tab-btn {
+                font-size: 0.86rem;
+                padding: 12px 6px;
+            }
+
+            .tab-content {
+                padding: 22px 14px;
+            }
+
+            .feedback-box {
+                flex-direction: column;
+            }
+
+            .next-btn,
+            .secondary-btn {
+                width: 100%;
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Haori Atelier Masterclass</h1>
+        <p>"Measure twice, cut once, and never disrespect the lining."</p>
+    </header>
+
+    <div class="tabs-container">
+        <div class="tabs" role="tablist" aria-label="Atelier sections">
+            <button id="tab-game-btn" class="tab-btn active" type="button" role="tab" aria-selected="true" aria-controls="tab-game" data-tab-target="tab-game">The Workshop</button>
+            <button id="tab-manual-btn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="tab-manual" data-tab-target="tab-manual" tabindex="-1">The Manual</button>
+            <button id="tab-status-btn" class="tab-btn" type="button" role="tab" aria-selected="false" aria-controls="tab-status" data-tab-target="tab-status" tabindex="-1">Apprentice Status</button>
+        </div>
+
+        <div id="tab-game" class="tab-content active" role="tabpanel" aria-labelledby="tab-game-btn">
+            <div class="progress-row" aria-label="Scenario progress">
+                <span id="step-label">Step 1 of 3</span>
+                <div class="progress-track" aria-hidden="true">
+                    <div id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="stats-bar">
+                <div class="stat-box"><span>Master's Trust</span><strong><span id="trust-val">60</span>%</strong></div>
+                <div class="stat-box"><span>Fabric Budget</span><strong>$<span id="budget-val">150</span></strong></div>
+            </div>
+
+            <div class="game-card">
+                <div id="question-text" class="dialogue-box">
+                    </div>
+                <div id="options-container" class="options-list">
+                    </div>
+                <div id="feedback" class="feedback-box" role="status" aria-live="polite">
+                    </div>
+                <button id="next-btn" class="next-btn" type="button">Next Step</button>
+                <div id="end-actions" class="end-actions" hidden>
+                    <button id="view-status-btn" class="next-btn" type="button">View Status</button>
+                    <button id="restart-btn" class="secondary-btn" type="button">Try Again</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-manual" class="tab-content" role="tabpanel" aria-labelledby="tab-manual-btn" hidden>
+            <div class="manual-section">
+                <h3>✂️ Required Material Checklist</h3>
+                <ul>
+                    <li><strong>Outer Fabric:</strong> Sized for body, sleeves, collar, and side closure loops.</li>
+                    <li><strong>Lining Fabric:</strong> Sleek patterned fabric for interior protection.</li>
+                    <li><strong>Collar Core:</strong> Heavy canvas or duck fabric for neckline structural rigidity.</li>
+                    <li><strong>Paper Pattern:</strong> Printed layout pattern scaled and taped together.</li>
+                </ul>
+            </div>
+            <div class="manual-section">
+                <h3>🥋 The Golden Rules of Lined Haoris</h3>
+                <ul>
+                    <li>Always water-shrink your outer fabrics before cutting to prevent uneven shrinking later.</li>
+                    <li>Machine-stitch <strong>straight through the paper pattern</strong> on side seams to lock slippery lining cuts perfectly in place.</li>
+                    <li>Women's styles require a 3mm snippet open slot at the armpit (Miyatsu-guchi) and only a half-stitched back seam. Men's style back seams are sewn fully shut.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="tab-status" class="tab-content" role="tabpanel" aria-labelledby="tab-status-btn" hidden>
+            <div class="profile-card">
+                <h2>Atelier Apprenticeship Record</h2>
+                <div id="current-rank" class="badge">Apprentice in Training</div>
+                <p id="status-summary">Complete the scenario inside the Workshop tab to view your final craftsmanship rating!</p>
+                <div id="status-details" class="status-details" hidden></div>
+                <div id="status-actions" class="end-actions status-actions" hidden>
+                    <button id="status-restart-btn" class="secondary-btn" type="button">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const INITIAL_TRUST = 60;
+        const INITIAL_BUDGET = 150;
+
+        // Branching Scenario Engine Configuration
+        let gameState = createInitialState();
+
+        const scenarioSteps = [
+            {
+                text: "<strong>Master Kenji:</strong> 'Welcome to the atelier! A valuable customer, Madame Tanaka, has ordered a bespoke lined Haori. The beautiful silk outer fabric has just arrived. We are short on time. What is your first move?'",
+                options: [
+                    {
+                        text: "Save time! Pin the paper pattern down immediately and begin cutting.",
+                        trustImpact: -40,
+                        budgetImpact: 0,
+                        feedback: "Oh no! Skipping the wash means the raw fabric will shrink unevenly down the line when dry cleaned. Master Kenji sighs deeply. (-40% Trust)",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Fan-fold the silk, immerse it in water to pre-shrink it, and press it perfectly flat with an iron before cutting.",
+                        trustImpact: 10,
+                        budgetImpact: 0,
+                        feedback: "Excellent precision! Pre-shrinking ensures structural stability for years to come. Master Kenji nods. (+10% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            },
+            {
+                text: "<strong>The Sewing Station:</strong> Your cut fabrics and paper patterns match perfectly. You are about to machine-stitch the side seams, but the paper layout is covering the fabric edge.",
+                options: [
+                    {
+                        text: "Unpin and remove the paper pattern completely so you can cleanly run just the fabrics through the machine.",
+                        trustImpact: 0,
+                        budgetImpact: -50,
+                        feedback: "Disaster! Without the paper acting as a rigid stabilizer, your delicate silk lining slips inside the feeder dog. The seam warps badly, wasting $50 in ruined replacement yardage.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Keep the pattern sheet pinned tightly and machine-stitch directly through both the paper template and the fabric layers.",
+                        trustImpact: 15,
+                        budgetImpact: 0,
+                        feedback: "Brilliant! Sewing straight through paper forces ultra-precise lines. You get the immensely satisfying chore of cleanly tearing the paper away afterwards. (+15% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            },
+            {
+                text: "<strong>The Back Seam Decision:</strong> Remember your client is Madame Tanaka. You are approaching the machine to stitch down the central back alignment seam.",
+                options: [
+                    {
+                        text: "Stitch the entire center back line completely shut from the upper neck down to the bottom structural hem line.",
+                        trustImpact: -30,
+                        budgetImpact: 0,
+                        feedback: "Incorrect! You just constructed a standard square-framed Men's backing. Madame Tanaka won't be able to properly drape her decorative kimono layers underneath. (-30% Trust)",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Snip a tiny 3mm Miyatsu-guchi armpit slot at the sides and machine-stitch only the lower half of the center back line.",
+                        trustImpact: 15,
+                        budgetImpact: 0,
+                        feedback: "Perfection! The open side slots and partial back stitch accommodate a woman's kimono styling gracefully. (+15% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            }
+        ];
+
+        function createInitialState() {
+            return {
+                trust: INITIAL_TRUST,
+                budget: INITIAL_BUDGET,
+                currentStep: 0,
+                choices: []
+            };
+        }
+
+        function switchTab(tabId, shouldFocus = false) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => {
+                const isActive = content.id === tabId;
+                content.classList.toggle('active', isActive);
+                content.hidden = !isActive;
+            });
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => {
+                const isActive = btn.dataset.tabTarget === tabId;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-selected', String(isActive));
+                btn.tabIndex = isActive ? 0 : -1;
+                if (isActive && shouldFocus) {
+                    btn.focus();
+                }
+            });
+        }
+
+        function updateProgress() {
+            const totalSteps = scenarioSteps.length;
+            const isComplete = gameState.currentStep >= totalSteps;
+            const stepLabel = document.getElementById('step-label');
+            const progressFill = document.getElementById('progress-fill');
+            const completedSteps = isComplete ? totalSteps : gameState.currentStep;
+
+            stepLabel.innerText = isComplete ? "Complete" : `Step ${gameState.currentStep + 1} of ${totalSteps}`;
+            progressFill.style.width = `${Math.round((completedSteps / totalSteps) * 100)}%`;
+        }
+
+        function updateUI() {
+            document.getElementById('trust-val').innerText = gameState.trust;
+            document.getElementById('budget-val').innerText = gameState.budget;
+            updateProgress();
+        }
+
+        function loadStep() {
+            updateUI();
+            const feedbackBox = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            const endActions = document.getElementById('end-actions');
+            feedbackBox.style.display = 'none';
+            nextBtn.style.display = 'none';
+            endActions.hidden = true;
+
+            if (gameState.currentStep < scenarioSteps.length) {
+                const step = scenarioSteps[gameState.currentStep];
+                document.getElementById('question-text').innerHTML = step.text;
+
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = '';
+
+                step.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.type = 'button';
+                    btn.dataset.correct = String(opt.isCorrect);
+                    btn.innerText = opt.text;
+                    btn.addEventListener('click', () => handleChoice(opt, btn));
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                endGame();
+            }
+        }
+
+        function handleChoice(option, selectedButton) {
+            gameState.trust = Math.min(100, Math.max(0, gameState.trust + option.trustImpact));
+            if(typeof option.budgetImpact === 'number') {
+                gameState.budget = Math.max(0, gameState.budget + option.budgetImpact);
+            }
+            gameState.choices[gameState.currentStep] = {
+                text: option.text,
+                isCorrect: option.isCorrect
+            };
+            updateUI();
+
+            const feedbackBox = document.getElementById('feedback');
+            const borderColor = option.isCorrect ? '#2d6a4f' : '#a63a50';
+            const feedbackTitle = option.isCorrect ? 'Correct choice' : 'Needs repair';
+
+            feedbackBox.replaceChildren();
+            const mark = document.createElement('div');
+            mark.className = 'feedback-mark';
+            mark.setAttribute('aria-hidden', 'true');
+            mark.innerText = option.isCorrect ? 'OK' : '!';
+
+            const textWrap = document.createElement('div');
+            textWrap.className = 'feedback-text';
+
+            const heading = document.createElement('strong');
+            heading.className = 'feedback-heading';
+            heading.innerText = feedbackTitle;
+
+            const copy = document.createElement('span');
+            copy.innerText = option.feedback;
+
+            textWrap.append(heading, copy);
+            feedbackBox.append(mark, textWrap);
+            
+            if (option.isCorrect) {
+                feedbackBox.style.backgroundColor = '#eaf2ec';
+                feedbackBox.style.borderColor = '#2d6a4f';
+                feedbackBox.style.color = '#2d6a4f';
+            } else {
+                feedbackBox.style.backgroundColor = '#f7e1e5';
+                feedbackBox.style.borderColor = '#a63a50';
+                feedbackBox.style.color = '#a63a50';
+            }
+
+            feedbackBox.style.display = 'flex'; 
+
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => {
+                b.disabled = true;
+                if (b === selectedButton) {
+                    b.classList.add(option.isCorrect ? 'correct' : 'wrong');
+                } else if (!option.isCorrect && b.dataset.correct === 'true') {
+                    b.classList.add('correct-answer');
+                }
+            });
+
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function advanceGame() {
+            gameState.currentStep++;
+            loadStep();
+        }
+
+        function endGame() {
+            const questionBox = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackBox = document.getElementById('feedback'); 
+            const endActions = document.getElementById('end-actions');
+            const statusDetails = document.getElementById('status-details');
+            const statusActions = document.getElementById('status-actions');
+            document.getElementById('next-btn').style.display = 'none';
+            optionsContainer.innerHTML = '';
+            feedbackBox.style.display = 'none';
+            updateProgress();
+
+            const correctCount = gameState.choices.filter(choice => choice && choice.isCorrect).length;
+            let finalRank = "Workshop Trainee";
+            let evaluationTitle = "";
+            let evaluationBody = "";
+            let recommendation = "";
+
+            if (gameState.trust >= 90 && gameState.budget > 100 && correctCount === scenarioSteps.length) {
+                finalRank = "Atelier Artisan";
+                evaluationTitle = "Flawless Work!";
+                evaluationBody = "Master Kenji is moved. Madame Tanaka's haori hangs beautifully, and you preserved the atelier's best materials.";
+                recommendation = "Ready for the next commission.";
+            } else if (gameState.trust >= 50 && gameState.budget > 50) {
+                finalRank = "Skilled Apprentice";
+                evaluationTitle = "Promising Attempt";
+                evaluationBody = "The haori is serviceable, but Master Kenji can see places where your craft needs a steadier hand.";
+                recommendation = "Review the Manual tab, then replay for a cleaner finish.";
+            } else {
+                finalRank = "Workshop Trainee";
+                evaluationTitle = "More Practice Needed";
+                evaluationBody = "The commission exposed a few costly gaps. Study the golden rules, then try the workshop again.";
+                recommendation = "Start with fabric preparation and gender-specific seam rules.";
+            }
+
+            questionBox.innerHTML = `<h3>${evaluationTitle}</h3><p style="margin-top:10px;">${evaluationBody}</p>`;
+            document.getElementById('current-rank').innerText = finalRank;
+            document.getElementById('status-summary').innerHTML = `Game completed with <strong>${finalRank}</strong>. ${recommendation}`;
+            statusDetails.innerHTML = `
+                <div class="status-detail"><span>Expert Choices</span><strong>${correctCount}/${scenarioSteps.length}</strong></div>
+                <div class="status-detail"><span>Master's Trust</span><strong>${gameState.trust}%</strong></div>
+                <div class="status-detail"><span>Fabric Budget</span><strong>$${gameState.budget}</strong></div>
+            `;
+            statusDetails.hidden = false;
+            statusActions.hidden = false;
+            endActions.hidden = false;
+        }
+
+        function restartGame() {
+            gameState = createInitialState();
+            document.getElementById('current-rank').innerText = "Apprentice in Training";
+            document.getElementById('status-summary').innerText = "Complete the scenario inside the Workshop tab to view your final craftsmanship rating!";
+            document.getElementById('status-details').hidden = true;
+            document.getElementById('status-details').innerHTML = '';
+            document.getElementById('status-actions').hidden = true;
+            switchTab('tab-game', true);
+            loadStep();
+        }
+
+        document.querySelectorAll('.tab-btn').forEach((btn, index, buttons) => {
+            btn.addEventListener('click', () => switchTab(btn.dataset.tabTarget));
+            btn.addEventListener('keydown', event => {
+                const keyMap = {
+                    ArrowRight: (index + 1) % buttons.length,
+                    ArrowLeft: (index - 1 + buttons.length) % buttons.length,
+                    Home: 0,
+                    End: buttons.length - 1
+                };
+
+                if (Object.prototype.hasOwnProperty.call(keyMap, event.key)) {
+                    event.preventDefault();
+                    const nextButton = buttons[keyMap[event.key]];
+                    switchTab(nextButton.dataset.tabTarget, true);
+                }
+            });
+        });
+
+        document.getElementById('next-btn').addEventListener('click', advanceGame);
+        document.getElementById('view-status-btn').addEventListener('click', () => switchTab('tab-status', true));
+        document.getElementById('restart-btn').addEventListener('click', restartGame);
+        document.getElementById('status-restart-btn').addEventListener('click', restartGame);
+
+        loadStep();
+    </script>
+</body>
+</html>
