@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Haori Atelier: Master Apprentice Challenge</title>
+    <style>
+        :root {
+            --primary: #7e1e2b;        /* Deep Kimono Crimson (Tsubaki) */
+            --primary-dark: #4a1018;   /* Dark Lacquer Red */
+            --accent: #caa43d;         /* Rich Obi Gold (Kin) */
+            --accent-light: #f4ebd0;   /* Soft Golden Silk */
+            --bg: #1c1214;             /* Midnight Charcoal Silk */
+            --card-bg: #fcfaf2;        /* Traditional Washi Paper White */
+            --text: #2b2224;           /* Soft Charcoal Black */
+            --success: #2d6a4f;        /* Deep Matcha Green */
+            --danger: #a63a50;         /* Crimson Error */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', Times, serif; 
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: radial-gradient(var(--primary-dark) 0.5px, transparent 0.5px), radial-gradient(var(--primary-dark) 0.5px, var(--bg) 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px; 
+            color: var(--text);
+            line-height: 1.7;
+            padding: 30px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 35px 20px;
+            border-radius: 4px;
+            border-bottom: 4px solid var(--accent);
+            box-shadow: 0 8px 24 rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            font-size: 2.3rem;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            color: var(--accent-light);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        header p {
+            color: #e2d4b7;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        /* Tabs Interface */
+        .tabs-container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            background: var(--primary-dark);
+            border: 1px solid rgba(202, 164, 61, 0.3);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #d9c398;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .tab-btn.active {
+            background: var(--card-bg);
+            color: var(--primary);
+            border: 1px solid var(--accent);
+            border-bottom: 4px solid var(--card-bg);
+            margin-bottom: -3px;
+            z-index: 10;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tab-content {
+            background: var(--card-bg);
+            padding: 40px;
+            border: 1px solid var(--accent);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            min-height: 450px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Game Interface Styling */
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            background: var(--accent-light);
+            padding: 15px 25px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            border: 1px solid var(--accent);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .stat-box {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+            letter-spacing: 0.5px;
+        }
+
+        .game-card {
+            text-align: center;
+        }
+
+        .dialogue-box {
+            background: #fffdf9;
+            border-left: 6px solid var(--primary);
+            border-right: 1px solid #ebdcb9;
+            border-top: 1px solid #ebdcb9;
+            border-bottom: 1px solid #ebdcb9;
+            padding: 25px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            font-size: 1.15rem;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 1px solid #dcd6cd;
+            padding: 18px 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1.05rem;
+            color: var(--text);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .option-btn:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Feedback Box Styling */
+        .feedback-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 4px;
+            display: none; 
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: 1px solid transparent;
+            text-align: left;
+            align-items: center; 
+            gap: 20px;
+        }
+
+        .feedback-box img {
+            width: 90px; 
+            height: 90px;
+            object-fit: contain;
+            border-radius: 4px;
+            border: 2px solid transparent; 
+            background: white;
+            padding: 4px;
+        }
+
+        .feedback-box .feedback-text {
+            flex: 1; 
+        }
+
+        .next-btn {
+            margin-top: 30px;
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--accent);
+            padding: 14px 40px;
+            border-radius: 4px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            display: none;
+        }
+
+        .next-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Checklist/Manual Styling */
+        .manual-section {
+            margin-bottom: 35px;
+        }
+
+        .manual-section h3 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            padding: 12px 0;
+            border-bottom: 1px dashed #e0dcd5;
+            display: flex;
+            align-items: flex-start;
+            font-size: 1.05rem;
+        }
+
+        li::before {
+            content: "✦"; 
+            color: var(--accent);
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Status Tab Profile Card */
+        .profile-card {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent) 0%, #b08d2b 100%);
+            color: white;
+            padding: 8px 25px;
+            border-radius: 2px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+
+        #status-summary {
+            font-size: 1.15rem;
+            color: #4a4244;
+            max-width: 500px;
+            margin: 25px auto 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Haori Atelier Masterclass</h1>
+        <p>"Measure twice, cut once, and never disrespect the lining."</p>
+    </header>
+
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-game')">The Workshop</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-manual')">The Manual</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-status')">Apprentice Status</button>
+        </div>
+
+        <div id="tab-game" class="tab-content active">
+            <div class="stats-bar">
+                <div class="stat-box">Master's Trust: <span id="trust-val">100</span>%</div>
+                <div class="stat-box">Fabric Budget: $<span id="budget-val">150</span></div>
+            </div>
+
+            <div class="game-card">
+                <div id="question-text" class="dialogue-box">
+                    </div>
+                <div id="options-container" class="options-list">
+                    </div>
+                <div id="feedback" class="feedback-box">
+                    </div>
+                <button id="next-btn" class="next-btn" onclick="advanceGame()">Next Step</button>
+            </div>
+        </div>
+
+        <div id="tab-manual" class="tab-content">
+            <div class="manual-section">
+                <h3>✂️ Required Material Checklist</h3>
+                <ul>
+                    <li><strong>Outer Fabric:</strong> Sized for body, sleeves, collar, and side closure loops.</li>
+                    <li><strong>Lining Fabric:</strong> Sleek patterned fabric for interior protection.</li>
+                    <li><strong>Collar Core:</strong> Heavy canvas or duck fabric for neckline structural rigidity.</li>
+                    <li><strong>Paper Pattern:</strong> Printed layout pattern scaled and taped together.</li>
+                </ul>
+            </div>
+            <div class="manual-section">
+                <h3>🥋 The Golden Rules of Lined Haoris</h3>
+                <ul>
+                    <li>Always water-shrink your outer fabrics before cutting to prevent uneven shrinking later.</li>
+                    <li>Machine-stitch <strong>straight through the paper pattern</strong> on side seams to lock slippery lining cuts perfectly in place.</li>
+                    <li>Women's styles require a 3mm snippet open slot at the armpit (Miyatsu-guchi) and only a half-stitched back seam. Men's style back seams are sewn fully shut.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="tab-status" class="tab-content">
+            <div class="profile-card">
+                <h2>Atelier Apprenticeship Record</h2>
+                <div id="current-rank" class="badge">Novice Tailor</div>
+                <p id="status-summary">Complete the scenario inside the Workshop tab to view your final craftsmanship rating!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switching Logic
+        function switchTab(evt, tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // --- DIRECT GIPHY ENGINE ASSETS ---
+        const happyNekoUrl = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3o3VGtvVmpSOTlnNDVmNGxPLmdfYm9keV9naWY/3o7TKoVjR99g45f4lO/giphy.gif"; 
+        const cryingNekoUrl = "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzk1QmI0U0ZydkgyRTI5OS5nX2JvZHlfZ2lm/9Y5Bb4SFrvH2E299/giphy.gif"; 
+
+        // Branching Scenario Engine Configuration
+        let gameState = {
+            trust: 100,
+            budget: 150,
+            currentStep: 0
+        };
+
+        // Complete 5-Question Quiz Scenario Combination Matrix
+        const scenarioSteps = [
+            {
+                text: "<strong>Scenario 1: Fabric Preparation</strong><br><br><strong>Master Kenji:</strong> 'Welcome to the atelier! A valuable customer, Madame Tanaka, has ordered a bespoke lined Haori. The beautiful silk outer fabric has just arrived. We are short on time. What is your first move?'",
+                options: [
+                    {
+                        text: "Save time! Pin the paper pattern down immediately and begin cutting.",
+                        trustImpact: -40,
+                        budgetImpact: 0,
+                        feedback: "Oh no! Skipping the water treatment means the raw fabric will shrink unevenly down the line when dry cleaned. Master Kenji sighs deeply. (-40% Trust)",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Fan-fold the silk, immerse it in water to pre-shrink it, and press it perfectly flat with an iron before cutting.",
+                        trustImpact: 10,
+                        budgetImpact: 0,
+                        feedback: "Excellent precision! Pre-shrinking ensures structural stability for years to come. Master Kenji nods. (+10% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            },
+            {
+                text: "<strong>Scenario 2: Custom Back Patchwork</strong><br><br><strong>The Design Board:</strong> Madame Tanaka requested custom accent patchwork seamlessly added to the back panels. The pattern sheet is still pinned to the fabric. How do you construct this?",
+                options: [
+                    {
+                        text: "Unpin the entire pattern, sew the patchwork panels raw, press them flat, then try to match the paper layout back over it.",
+                        trustImpact: -10,
+                        budgetImpact: -30,
+                        feedback: "A costly shortcut! Stripping the pattern off early warps your alignment lines. The replacement panel alignment slips, burning $30 of silk yardage.",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Peel back the pattern paper ONLY at the specific edges to be sewn, machine-stitch with a 1cm seam allowance, iron the seams open, and pin the pattern right back flat.",
+                        trustImpact: 15,
+                        budgetImpact: 0,
+                        feedback: "Perfect method! Keeping the paper structure anchored preserves absolute design symmetry for the patchwork insert. (+15% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            },
+            {
+                text: "<strong>Scenario 3: Fabricating the Collar Core</strong><br><br><strong>The Cutting Table:</strong> You are setting up the canvas collar core inside the neckline structure. However, the heavy canvas strip you have is slightly too short and feels a bit thin for structural support. What do you do?",
+                options: [
+                    {
+                        text: "Double up two canvas layers for rigidity, and overlap the short edge cuts slightly where they join so you don't add unwanted bulk inside the collar seam.",
+                        trustImpact: 15,
+                        budgetImpact: 0,
+                        feedback: "Brilliant execution! Doubling thin canvas provides perfect neck rigidity, and overlapping the connection prevents blocky bulges. (+15% Trust)",
+                        isCorrect: true
+                    },
+                    {
+                        text: "Stitch the collar core single-layered to keep things moving, and pull/stretch the canvas tight across the missing seam gap.",
+                        trustImpact: -25,
+                        budgetImpact: -10,
+                        feedback: "Flawed construction! A flimsy single-layer core causes the collar drape to sag awkwardly. You have to scrap the collar line. (-25% Trust, -$10 Materials)",
+                        isCorrect: false
+                    }
+                ]
+            },
+            {
+                text: "<strong>Scenario 4: The Side Seam Assembly</strong><br><br><strong>The Sewing Station:</strong> Your lining and outer shell panels match perfectly. You are sitting at the sewing machine to run the main side seams, but the pinned paper pattern sheet is directly over the needle track.",
+                options: [
+                    {
+                        text: "Carefully unpin and tear the paper pattern sheets away now so you can cleanly run just the pure textile fabrics through the machine guide.",
+                        trustImpact: 0,
+                        budgetImpact: -50,
+                        feedback: "Disaster! Without the paper acting as a rigid feed stabilizer, your ultra-slippery silk lining gathers and puckers terribly inside the machine feed dogs. The side panel is completely ruined. (-$50 Budget)",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Keep the pattern sheets firmly pinned, and machine-stitch straight through the paper layout sheet and the fabric layers at the same time.",
+                        trustImpact: 15,
+                        budgetImpact: 0,
+                        feedback: "Excellent! Machine-stitching right through the paper ensures absolute precision with zero silk slippage. Tearing away the paper along the perforated stitch afterward is flawlessly clean! (+15% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            },
+            {
+                text: "<strong>Scenario 5: Gender Styling & Final Seams</strong><br><br><strong>The Final Polish:</strong> Master Kenji checks your work: 'Remember, this is for Madame Tanaka!'. You are approaching the machine to stitch the center back seam allowance connecting the outer shell and lining.",
+                options: [
+                    {
+                        text: "Run a continuous machine-stitch along the center back line from the very top neck down to the bottom hem, keeping it secure and closed.",
+                        trustImpact: -40,
+                        budgetImpact: 0,
+                        feedback: "Incorrect! You just constructed a Men's style closure. A traditional Women's Haori requires an open, flexible lower frame to sit correctly over decorative kimono layers. Master Kenji stops you. (-40% Trust)",
+                        isCorrect: false
+                    },
+                    {
+                        text: "Snip a 3mm Miyatsu-guchi opening slit at the sides, and machine-stitch only the lower half of the center back line for the lining and outer fabric.",
+                        trustImpact: 20,
+                        budgetImpact: 0,
+                        feedback: "Perfection! The partial back seam and side armpit slits (Miyatsu-guchi) define the classic silhouette of a women's haori. Madame Tanaka is thrilled! (+20% Trust)",
+                        isCorrect: true
+                    }
+                ]
+            }
+        ];
+
+        function updateUI() {
+            document.getElementById('trust-val').innerText = gameState.trust;
+            document.getElementById('budget-val').innerText = gameState.budget;
+        }
+
+        function loadStep() {
+            updateUI();
+            const feedbackBox = document.getElementById('feedback');
+            const nextBtn = document.getElementById('next-btn');
+            feedbackBox.style.display = 'none';
+            nextBtn.style.display = 'none';
+
+            if (gameState.currentStep < scenarioSteps.length) {
+                const step = scenarioSteps[gameState.currentStep];
+                document.getElementById('question-text').innerHTML = step.text;
+
+                const optionsContainer = document.getElementById('options-container');
+                optionsContainer.innerHTML = '';
+
+                step.options.forEach((opt, idx) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerText = opt.text;
+                    btn.onclick = () => handleChoice(opt);
+                    optionsContainer.appendChild(btn);
+                });
+            } else {
+                endGame();
+            }
+        }
+
+        function handleChoice(option) {
+            gameState.trust = Math.max(0, gameState.trust + option.trustImpact);
+            gameState.budget = Math.max(0, gameState.budget + option.budgetImpact);
+            updateUI();
+
+            const feedbackBox = document.getElementById('feedback');
+            const nekoImgUrl = option.isCorrect ? happyNekoUrl : cryingNekoUrl;
+            const borderColor = option.isCorrect ? '#2d6a4f' : '#a63a50';
+
+            feedbackBox.innerHTML = `
+                <img src="${nekoImgUrl}" alt="${option.isCorrect ? 'Happy' : 'Crying'} Maneki Neko" style="border-color: ${borderColor}">
+                <div class="feedback-text">${option.feedback}</div>
+            `;
+            
+            if (option.isCorrect) {
+                feedbackBox.style.backgroundColor = '#eaf2ec';
+                feedbackBox.style.borderColor = '#2d6a4f';
+                feedbackBox.style.color = '#2d6a4f';
+            } else {
+                feedbackBox.style.backgroundColor = '#f7e1e5';
+                feedbackBox.style.borderColor = '#a63a50';
+                feedbackBox.style.color = '#a63a50';
+            }
+
+            feedbackBox.style.display = 'flex'; 
+
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.disabled = true);
+
+            document.getElementById('next-btn').style.display = 'inline-block';
+        }
+
+        function advanceGame() {
+            gameState.currentStep++;
+            loadStep();
+        }
+
+        function endGame() {
+            const questionBox = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackBox = document.getElementById('feedback'); 
+            document.getElementById('next-btn').style.display = 'none';
+            optionsContainer.innerHTML = '';
+            feedbackBox.style.display = 'none';
+
+            let finalRank = "Novice Tailor";
+            let evaluationHTML = "";
+
+            if (gameState.trust >= 85 && gameState.budget >= 120) {
+                finalRank = "Master Artisan Journeyman";
+                evaluationHTML = "<h3>🎉 Flawless Craftsmanship!</h3><p style='margin-top:10px;'>Master Kenji bows deeply to you. Madame Tanaka's haori hangs with divine precision, and you have preserved the exquisite reputation of our historical atelier. You are now a licensed master tailor!</p>";
+            } else if (gameState.trust >= 50 && gameState.budget >= 60) {
+                finalRank = "Apprentice Assistant";
+                evaluationHTML = "<h3>👍 Passable Execution</h3><p style='margin-top:10px;'>The garment matches standard dimensional specifications, but you lost structural integrity and wasted precious fabrics along the way. Re-study the blueprint manual and test your alignment again.</p>";
+            } else {
+                finalRank = "Floor Sweeper";
+                evaluationHTML = "<h3>❌ Atelier Dismissal</h3><p style='margin-top:10px;'>You have warped luxury silks, mangled structural necklines, and completely misapplied traditional alignment parameters. Master Kenji has permanently taken your industrial shears.</p>";
+            }
+
+            questionBox.innerHTML = evaluationHTML;
+            document.getElementById('current-rank').innerText = finalRank;
+            document.getElementById('status-summary').innerHTML = `Game Completed! Your ultimate evaluation score yielded: <strong>${finalRank}</strong> with ${gameState.trust}% Trust remaining and $${gameState.budget} left in your material reserves.`;
+        }
+
+        // Initialize App State
+        loadStep();
+    </script>
+</body>
+</html>
